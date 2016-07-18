@@ -1,5 +1,4 @@
 ﻿import geomagic.app.v2
-import time
 for m in geomagic.app.v2.execStrings: exec m in locals(), globals()
 import os,time,subprocess,shutil,datetime,math
 #
@@ -66,23 +65,17 @@ def yloc():
 	mesh = geoapp.getMesh(model)
 	analyzer = Analyze(mesh)
 	analyzer.run()
-	cgrav = analyzer.centerOfGravity
-	stra = str(cgrav)
-	cgyA = stra.split(",")
-	cgy = float(cgyA[1])
-	return cgy
+	cg = str(analyzer.centerOfGravity).split(",")
+	return float(cg[1])
 #Object Z================================================================================
 def zloc():
 	model = geoapp.getActiveModel()
 	mesh = geoapp.getMesh(model)
 	analyzer = Analyze(mesh)
 	analyzer.run()
-	cgrav = analyzer.centerOfGravity
-	stra = str(cgrav)
-	cgyA = stra.split(",")
-	cgzA = cgyA[2].split(")")
-	cgz = float(cgzA[0])
-	return cgz
+	cg = str(analyzer.centerOfGravity).split(",")
+	cg = cg[2].split(")")
+	return float(cg[0])
 #Volume Check================================================================================
 def volcheck():
 	model = geoapp.getActiveModel()
@@ -186,7 +179,7 @@ def cleanMesh(rmy, rmc, rmd):
 	if rmc == 1: geo.remesh(0.0003, 1, 0, 180, 0.003, 1, 0, 0, 0.0003, 0)
 	geo.remove_spikes_new(100)
 	geo.relax_polygons(50, 0, 1, -1, 3)
-	if rmd == 1:geo.mesh_doctor("smallcompsize", 0.003, "smalltunnelsize", 0.002, "holesize", 0.002, "spikesens", 50, "spikelevel", 0.5, "defeatureoption", 2, "fillholeoption", 2, "autoexpand", 2, "operations", "IntersectionCheck+", "SmallComponentCheck+", "SpikeCheck+", "HighCreaseCheck+", "Update", "Auto-Repair")
+	if rmd == 1:geo.mesh_doctor("smallcompsize", 0, "smalltunnelsize", 0, "holesize", 0, "spikesens", 50, "spikelevel", 0.5, "defeatureoption", 2, "fillholeoption", 2, "autoexpand", 2, "operations", "IntersectionCheck+", "SmallComponentCheck+", "SpikeCheck+", "HighCreaseCheck+", "Update", "Auto-Repair")
 	geo.select_all()
 	geo.clear_all()
 #Base Extrude================================================================================
@@ -222,11 +215,13 @@ def baseExt(numI, numF):
 #Execute Import Run ========================================================================================================================================
 #===========================================================================================================================================================
 def opnMod(path_to_file, each):
+	cnumM = [ [None]*5 for rows in range(12)]
 	geo.open(0, 1, path_to_file)
 	raw1Name = each
 	activeModel = geoapp.getActiveModel()
-	geo.clear_all()
 	if activeModel != None:
+		geo.select_all()
+		geo.clear_all()
 		modelName = activeModel.name
 		originalMeshIN = geoapp.getMesh( activeModel )
 		if originalMeshIN != None:
@@ -249,73 +244,73 @@ def opnMod(path_to_file, each):
 #============================================================================================================================================================
 #Model Naming================================================================================================================================================
 #============================================================================================================================================================
-				cnumLF = caseid + '-LF'
-				cnumLI = caseid + '-LI'
-				cnumLO = caseid + '-LO'
-				rawLF = caseid + '-LF-RAW'
-				rawLI = caseid + '-LI-RAW'
-				cnumUF = caseid + '-UF'
-				cnumUI = caseid + '-UI'
-				cnumUO = caseid + '-UO'
-				rawUF = caseid + '-UF-RAW'
-				rawUI = caseid + '-UI-RAW'
+				cnumM[0][0] = caseid + '-LF'
+				cnumM[1][0] = caseid + '-LI'
+				cnumM[2][0] = caseid + '-LO'
+				cnumM[3][0] = caseid + '-LF-RAW'
+				cnumM[4][0] = caseid + '-LI-RAW'
+				cnumM[5][0] = caseid + '-UF'
+				cnumM[6][0] = caseid + '-UI'
+				cnumM[7][0] = caseid + '-UO'
+				cnumM[8][0] = caseid + '-UF-RAW'
+				cnumM[9][0] = caseid + '-UI-RAW'
 				#Occlusion Names======================
-				cnumOCF = caseid + '-OCCF'
-				cnumOCI = caseid + '-OCCI'
+				cnumM[10][0] = caseid + '-OCCF'
+				cnumM[11][0] = caseid + '-OCCI'
 #============================================================================================================================================================
 #File Directory=========================================================================================================================================
 #============================================================================================================================================================
 			#File Origin =================================================================================================================================
-				f1LF = path_to_watch + cnumLF + '.wrp'
-				f1LI = path_to_watch + cnumLI + '.wrp'
-				frLF = Terminal + 'RP_Automation\\RAW\\STLS\\' + rawLF + '.stl'
-				frLI = Terminal + 'RP_Automation\\RAW\\STLS\\' + rawLI + '.stl'
-				f1UF = path_to_watch + cnumUF + '.wrp'
-				f1UI = path_to_watch + cnumUI + '.wrp'
-				frUF = Terminal + 'RP_Automation\\RAW\\STLS\\' + rawUF + '.stl'
-				frUI = Terminal + 'RP_Automation\\RAW\\STLS\\' + rawUI + '.stl'
+				cnumM[0][2] = path_to_watch + cnumM[0][0] + '.wrp'
+				cnumM[1][2] = path_to_watch + cnumM[1][0] + '.wrp'
+				cnumM[3][2] = Terminal + 'RP_Automation\\RAW\\STLS\\' + cnumM[3][0] + '.stl'
+				cnumM[4][2] = Terminal + 'RP_Automation\\RAW\\STLS\\' + cnumM[4][0] + '.stl'
+				cnumM[5][2] = path_to_watch + cnumM[5][0] + '.wrp'
+				cnumM[6][2] = path_to_watch + cnumM[6][0] + '.wrp'
+				cnumM[8][2] = Terminal + 'RP_Automation\\RAW\\STLS\\' + cnumM[8][0] + '.stl'
+				cnumM[9][2] = Terminal + 'RP_Automation\\RAW\\STLS\\' + cnumM[9][0] + '.stl'
 			#Additional Directory Paths===================================================================================================
 				#Save============================
-				ffuf = savePath + cnumUF + '.wrp'
-				ffui = savePath + cnumUI + '.wrp'
-				ffuo = savePath + cnumUO + '.wrp'
-				fflf = savePath + cnumLF + '.wrp'
-				ffli = savePath + cnumLI + '.wrp'
-				fflo = savePath + cnumLO + '.wrp'
-				ffoci = savePath + cnumOCI + '.wrp'
-				ffocf = savePath + cnumOCF + '.wrp'
+				cnumM[0][3] = savePath + cnumM[0][0] + '.wrp'
+				cnumM[1][3] = savePath + cnumM[1][0] + '.wrp'
+				cnumM[2][3] = savePath + cnumM[2][0] + '.wrp'
+				cnumM[5][3] = savePath + cnumM[5][0] + '.wrp'
+				cnumM[6][3] = savePath + cnumM[6][0] + '.wrp'
+				cnumM[7][3] = savePath + cnumM[7][0] + '.wrp'
+				cnumM[10][3] = savePath + cnumM[10][0] + '.wrp'
+				cnumM[11][3] = savePath + cnumM[11][0] + '.wrp'
 				#Trash=============================
-				ftlf = rawPath + cnumLF + '.wrp'
-				ftli = rawPath + cnumLI + '.wrp'
-				ftuf = rawPath + cnumUF + '.wrp'
-				ftui = rawPath + cnumUI + '.wrp'
+				cnumM[0][4] = rawPath + cnumM[0][0] + '.wrp'
+				cnumM[1][4] = rawPath + cnumM[1][0] + '.wrp'
+				cnumM[5][4] = rawPath + cnumM[5][0] + '.wrp'
+				cnumM[6][4] = rawPath + cnumM[6][0] + '.wrp'
 			#Check File Existence============================================================================================================================================================
 				chkffL = 0
 				chkffU = 0
 				chkffOC = 0
-				if not os.path.exists(f1LF): chkffL = 1
-				if not os.path.exists(f1LI): chkffL = 1
-				if not os.path.exists(frLF): chkffOC = 1
-				if not os.path.exists(frLI): chkffOC = 1
-				if not os.path.exists(f1UF): chkffU = 1
-				if not os.path.exists(f1UI): chkffU = 1
-				if not os.path.exists(frUF): chkffOC = 1
-				if not os.path.exists(frUI): chkffOC = 1
+				if not os.path.exists(cnumM[0][2]): chkffL = 1
+				if not os.path.exists(cnumM[1][2]): chkffL = 1
+				if not os.path.exists(cnumM[3][2]): chkffOC = 1
+				if not os.path.exists(cnumM[4][2]): chkffOC = 1
+				if not os.path.exists(cnumM[5][2]): chkffU = 1
+				if not os.path.exists(cnumM[6][2]): chkffU = 1
+				if not os.path.exists(cnumM[8][2]): chkffOC = 1
+				if not os.path.exists(cnumM[9][2]): chkffOC = 1
 				#============================================================================================================================================
 				if chkffL == 1:
-					if os.path.exists(fflf):
-						if os.path.exists(ffli):
+					if os.path.exists(cnumM[0][3]):
+						if os.path.exists(cnumM[1][3]):
 							chkffOC = 0
-							f1LF = fflf
-							f1LI = ffli
+							cnumM[0][2] = cnumM[0][3]
+							cnumM[1][2] = cnumM[1][3]
 						else: chkffOC = 1
 					else: chkffOC = 1
 				if chkffU == 1:
-					if os.path.exists(ffuf):
-						if os.path.exists(ffui):
+					if os.path.exists(cnumM[5][3]):
+						if os.path.exists(cnumM[6][3]):
 							chkffOC = 0
-							f1UF = ffuf
-							f1UI = ffui
+							cnumM[5][2] = cnumM[5][3]
+							cnumM[6][2] = cnumM[6][3]
 						else: chkffOC = 1
 					else: chkffOC = 1
 #============================================================================================================================================================				
@@ -323,190 +318,174 @@ def opnMod(path_to_file, each):
 #============================================================================================================================================================				
 				if chkffL == 0:
 				#Allocate Models/Meshes===================================================================================================================
-					LImesh = Mesh()
-					LFmesh = Mesh()
-					LOmesh = Mesh()
 					#1stPass LF=========================================
-					GetFile(f1LF)
-					geo.select_objects(1, "Polygon", 1, cnumLF)
+					GetFile(cnumM[0][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[0][0])
 					geo.select_all()
 					geo.clear_all()
 					geo.exact_position(0, -0.0010, 0, 0, 0, 0, 1, 0, 0, 1)
-					LFmesh = dupObj()
+					cnumM[0][1] = dupObj()
 					#1stPass LI==========================================
-					GetFile(f1LI)
-					geo.select_objects(1, "Polygon", 1, cnumLI)
+					GetFile(cnumM[1][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[1][0])
 					geo.select_all()
 					geo.clear_all()
 					geo.exact_position(0, -0.0010, 0, 0, 0, 0, 1, 0, 0, 1)
-					LImesh = dupObj()
+					cnumM[1][1] = dupObj()
 				#Process Individual Models===================================================================================================================
-					RetObj(LFmesh, cnumLF)
-					RetObj(LImesh, cnumLI)
-					baseExt(cnumLI, cnumLF)
-					Overlay(cnumLI, cnumLF, cnumLO)
-					geo.select_objects(1, "Polygon", 3, cnumLF, cnumLI, cnumLO)
+					RetObj(cnumM[0][1], cnumM[0][0])
+					RetObj(cnumM[1][1], cnumM[1][0])
+					baseExt(cnumM[1][0], cnumM[0][0])
+					Overlay(cnumM[1][0], cnumM[0][0], cnumM[2][0])
+					geo.select_objects(1, "Polygon", 3, cnumM[0][0], cnumM[1][0], cnumM[2][0])
 					geo.section_by_plane(1, 0, 1, 1, -0, -1, -0, 0.005, 0)
 					geo.section_by_plane(1, 0, 1, 1, -0, -1, -0, 0.002, 0)
 					geo.fill_all_holes(1, 0, 1.79e+308, False)
 				#Added Volume Check on all parts 11/2/15======================================================================================================
 				#Allocate Models======================================================================================================
-					geo.select_objects(1, "Polygon", 1, cnumLF)
+					geo.select_objects(1, "Polygon", 1, cnumM[0][0])
 					volcorrect()
-					LFmesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, cnumLI)
+					cnumM[0][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[1][0])
 					volcorrect()
-					LImesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, cnumLO)
+					cnumM[1][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[2][0])
 					volcorrect()
-					LOmesh = dupObj()
+					cnumM[2][1] = dupObj()
 				#Save Individual Models======================================================================================================
-					RetObj(LFmesh, cnumLF)
-					geoapp.saveAs(fflf)
-					LFmesh = dupObj()
-					RetObj(LImesh, cnumLI)
-					geoapp.saveAs(ffli)
-					LImesh = dupObj()
-					RetObj(LOmesh, cnumLO)
-					geoapp.saveAs(fflo)
-					LOmesh = dupObj()
+					RetObj(cnumM[0][1], cnumM[0][0])
+					geoapp.saveAs(cnumM[0][3])
+					cnumM[0][1] = dupObj()
+					RetObj(cnumM[1][1], cnumM[1][0])
+					geoapp.saveAs(cnumM[1][3])
+					cnumM[1][1] = dupObj()
+					RetObj(cnumM[2][1], cnumM[2][0])
+					geoapp.saveAs(cnumM[2][3])
+					cnumM[2][1] = dupObj()
 				#Move Input Files======================================================================================================
-					shutil.move(f1LF,ftlf)
-					shutil.move(f1LI,ftli)
+					shutil.move(cnumM[0][2],cnumM[0][4])
+					shutil.move(cnumM[1][2],cnumM[1][4])
 #============================================================================================================================================================
 #Upper Processing============================================================================================================================================================
 #============================================================================================================================================================
 				if chkffU == 0:
 				#Allocate Models/Meshes===================================================================================================================
-					UImesh = Mesh()
-					UFmesh = Mesh()
-					UOmesh = Mesh()
 					#1stPass UF=========================================
-					GetFile(f1UF)
-					geo.select_objects(1, "Polygon", 1, cnumUF)
+					GetFile(cnumM[5][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[5][0])
 					geo.select_all()
 					geo.clear_all()
 					geo.exact_position(0, 0.0010, 0, 0, 0, 180, 1, 0, 0, 1)
-					UFmesh = dupObj()
+					cnumM[5][1] = dupObj()
 					#1stPass UI==========================================
-					GetFile(f1UI)
-					geo.select_objects(1, "Polygon", 1, cnumUI)
+					GetFile(cnumM[6][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[6][0])
 					geo.select_all()
 					geo.clear_all()
 					geo.exact_position(0, 0.0010, 0, 0, 0, 180, 1, 0, 0, 1)
-					UImesh = dupObj()
+					cnumM[6][1] = dupObj()
 				#Process Individual Models===================================================================================================================
-					RetObj(UFmesh, cnumUF)
-					RetObj(UImesh, cnumUI)
-					baseExt(cnumUI, cnumUF)
-					Overlay(cnumUI, cnumUF, cnumUO)
-					geo.select_objects(1, "Polygon", 3, cnumUF, cnumUI, cnumUO)
+					RetObj(cnumM[5][1], cnumM[5][0])
+					RetObj(cnumM[6][1], cnumM[6][0])
+					baseExt(cnumM[6][0], cnumM[5][0])
+					Overlay(cnumM[6][0], cnumM[5][0], cnumM[7][0])
+					geo.select_objects(1, "Polygon", 3, cnumM[5][0], cnumM[6][0], cnumM[7][0])
 					geo.section_by_plane(1, 0, 1, 1, -0, -1, -0, 0.005, 0)
 					geo.section_by_plane(1, 0, 1, 1, -0, -1, -0, 0.002, 0)
 					geo.fill_all_holes(1, 0, 1.79e+308, False)
 				#Added Volume Check on all parts 11/2/15======================================================================================================
 				#Allocate Models======================================================================================================
-					geo.select_objects(1, "Polygon", 1, cnumUF)
+					geo.select_objects(1, "Polygon", 1, cnumM[5][0])
 					volcorrect()
-					UFmesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, cnumUI)
+					cnumM[5][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[6][0])
 					volcorrect()
-					UImesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, cnumUO)
+					cnumM[6][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[7][0])
 					volcorrect()
-					UOmesh = dupObj()
+					cnumM[7][1] = dupObj()
 				#Save Individual Models======================================================================================================
-					RetObj(UFmesh, cnumUF)
-					geoapp.saveAs(ffuf)
-					UFmesh = dupObj()
-					RetObj(UImesh, cnumUI)
-					geoapp.saveAs(ffui)
-					UImesh = dupObj()
-					RetObj(UOmesh, cnumUO)
-					geoapp.saveAs(ffuo)
-					UOmesh = dupObj()
+					RetObj(cnumM[5][1], cnumM[5][0])
+					geoapp.saveAs(cnumM[5][3])
+					cnumM[5][1] = dupObj()
+					RetObj(cnumM[6][1], cnumM[6][0])
+					geoapp.saveAs(cnumM[6][3])
+					cnumM[6][1] = dupObj()
+					RetObj(cnumM[7][1], cnumM[7][0])
+					geoapp.saveAs(cnumM[7][3])
+					cnumM[7][1] = dupObj()
 				#Move Input Files======================================================================================================
-					shutil.move(f1UF,ftuf)
-					shutil.move(f1UI,ftui)
+					shutil.move(cnumM[5][2],cnumM[5][4])
+					shutil.move(cnumM[6][2],cnumM[6][4])
 #==========================================================================================================================================================
 #Occlusion Processing======================================================================================================================================
 #==========================================================================================================================================================
 				if chkffOC == 0:
 				#Allocate Post Processed if Needed============================================================================================
 					if chkffL == 1:
-						LFmesh = Mesh()
-						LImesh = Mesh()
 						#Processed LF=========================================
-						GetFile(f1LF)
-						geo.select_objects(1, "Polygon", 1, cnumLF)
-						LFmesh = dupObj()
+						GetFile(cnumM[0][2])
+						geo.select_objects(1, "Polygon", 1, cnumM[0][0])
+						cnumM[0][1] = dupObj()
 						#Processed LI==========================================
-						GetFile(f1LI)
-						geo.select_objects(1, "Polygon", 1, cnumLI)
-						LImesh = dupObj()
+						GetFile(cnumM[1][2])
+						geo.select_objects(1, "Polygon", 1, cnumM[1][0])
+						cnumM[1][1] = dupObj()
 					if chkffU == 1:
-						UFmesh = Mesh()
-						UImesh = Mesh()
 						#Processed UF=========================================
-						GetFile(f1UF)
-						geo.select_objects(1, "Polygon", 1, cnumUF)
-						UFmesh = dupObj()
+						GetFile(cnumM[5][2])
+						geo.select_objects(1, "Polygon", 1, cnumM[5][0])
+						cnumM[5][1] = dupObj()
 						#Processed UI==========================================
-						GetFile(f1UI)
-						geo.select_objects(1, "Polygon", 1, cnumUI)
-						UImesh = dupObj()
+						GetFile(cnumM[6][2])
+						geo.select_objects(1, "Polygon", 1, cnumM[6][0])
+						cnumM[6][1] = dupObj()
 				#Allocate Raw Occlusions======================================================================================================
-					OCImesh = Mesh()
-					OCFmesh = Mesh()
-					rawLImesh = Mesh()
-					rawLFmesh = Mesh()
-					rawUImesh = Mesh()
-					rawUFmesh = Mesh()
-					GetFile(frLF)
-					geo.select_objects(1, "Polygon", 1, rawLF)
-					rawLFmesh = dupObj()
-					GetFile(frLI)
-					geo.select_objects(1, "Polygon", 1, rawLI)
-					rawLImesh = dupObj()
-					GetFile(frUF)
-					geo.select_objects(1, "Polygon", 1, rawUF)
-					rawUFmesh = dupObj()
-					GetFile(frUI)
-					geo.select_objects(1, "Polygon", 1, rawUI)
-					rawUImesh = dupObj()
+					GetFile(cnumM[3][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[3][0])
+					cnumM[3][1] = dupObj()
+					GetFile(cnumM[4][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[4][0])
+					cnumM[4][1] = dupObj()
+					GetFile(cnumM[8][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[8][0])
+					cnumM[8][1] = dupObj()
+					GetFile(cnumM[9][2])
+					geo.select_objects(1, "Polygon", 1, cnumM[9][0])
+					cnumM[9][1] = dupObj()
 				#Create Occlusions======================================================================================================
-					RetObj(LFmesh, cnumLF)
-					RetObj(rawLFmesh, rawLF)
-					RetObj(LImesh, cnumLI)
-					RetObj(rawLImesh, rawLI)
-					BFA2(rawLF, cnumLF, 0)
-					BFA2(rawLI, cnumLI, 0)
-					RetObj(UFmesh, cnumUF)
-					RetObj(rawUFmesh, rawUF)
-					RetObj(UImesh, cnumUI)
-					RetObj(rawUImesh, rawUI)
-					BFA2(rawUF, cnumUF, 1)
-					BFA2(rawUI, cnumUI, 1)
-					geo.select_objects(1, "Polygon", 1, rawLF)
-					rawLFmesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, rawLI)
-					rawLImesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, rawUF)
-					rawUFmesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, rawUI)
-					rawUImesh = dupObj()
+					RetObj(cnumM[0][1], cnumM[0][0])
+					RetObj(cnumM[3][1], cnumM[3][0])
+					RetObj(cnumM[1][1], cnumM[1][0])
+					RetObj(cnumM[4][1], cnumM[4][0])
+					BFA2(cnumM[3][0], cnumM[0][0], 0)
+					BFA2(cnumM[4][0], cnumM[1][0], 0)
+					RetObj(cnumM[5][1], cnumM[5][0])
+					RetObj(cnumM[8][1], cnumM[8][0])
+					RetObj(cnumM[6][1], cnumM[6][0])
+					RetObj(cnumM[9][1], cnumM[9][0])
+					BFA2(cnumM[8][0], cnumM[5][0], 1)
+					BFA2(cnumM[9][0], cnumM[6][0], 1)
+					geo.select_objects(1, "Polygon", 1, cnumM[3][0])
+					cnumM[3][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[4][0])
+					cnumM[4][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[8][0])
+					cnumM[8][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[9][0])
+					cnumM[9][1] = dupObj()
 					#Merge Occlusions=================================
-					occ(cnumUI, cnumLI, cnumOCI)
-					occ(cnumUF, cnumLF, cnumOCF)
-					BFA2(cnumOCF, cnumOCI, 2)
+					occ(cnumM[6][0], cnumM[1][0], cnumM[11][0])
+					occ(cnumM[5][0], cnumM[0][0], cnumM[10][0])
+					BFA2(cnumM[10][0], cnumM[11][0], 2)
 				#Save Occlusions======================================================================================================
-					geo.select_objects(1, "Polygon", 1, cnumOCI)
-					OCImesh = dupObj()
-					geo.select_objects(1, "Polygon", 1, cnumOCF)
-					geoapp.saveAs(ffocf)
-					OCFmesh = dupObj()
-					RetObj(OCImesh, cnumOCI)
-					geoapp.saveAs(ffoci)
+					geo.select_objects(1, "Polygon", 1, cnumM[11][0])
+					cnumM[11][1] = dupObj()
+					geo.select_objects(1, "Polygon", 1, cnumM[10][0])
+					geoapp.saveAs(cnumM[10][3])
+					cnumM[10][1] = dupObj()
+					RetObj(cnumM[11][1], cnumM[11][0])
+					geoapp.saveAs(cnumM[11][3])
 				#============================================================================================================================================================
 				#============================================================================================================================================================
 #============================================================================================================================================================
